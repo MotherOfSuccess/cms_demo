@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { Levels } from 'src/constants/enums/levels.enum';
-import { Methods } from 'src/constants/enums/methods.enum';
-import { UserPermissionEntity } from 'src/entities/user-permission.entity';
-import { LogService } from 'src/modules/log/services/log.service';
 import { DataSource, EntityManager } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+
+import { Levels } from '../../../../constants/enums/levels.enum';
+import { Methods } from '../../../../constants/enums/methods.enum';
+
+import { UserPermissionEntity } from '../../../../entities/user-permission.entity';
+import { LogService } from '../../../log/services/log.service';
 
 @Injectable()
 export class UserPermissionService {

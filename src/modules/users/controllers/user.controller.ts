@@ -11,10 +11,10 @@ import { CreateUserDto } from '../dtos/create-user.dto';
 import { HandleException } from '../../../exceptions/HandleException';
 import { SERVER_EXIT_CODE } from '../../../constants/enums/errors-code.enum';
 import { addUserWithPermissions } from '../functions';
-import { PermissionService } from 'src/modules/permissions/services/permission/permission.service';
-import { UserPermissionService } from 'src/modules/permissions/services/user-permission/user-permission.service';
+import { PermissionService } from '../../../modules/permissions/services/permission/permission.service';
+import { UserPermissionService } from '../../../modules/permissions/services/user-permission/user-permission.service';
 import { DataSource } from 'typeorm';
-import { ConfigurationService } from 'src/modules/shared/services/configuration/configuration.service';
+import { ConfigurationService } from '../../../modules/shared/services/configuration/configuration.service';
 
 @Controller('user')
 export class UserController {

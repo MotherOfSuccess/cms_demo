@@ -35,7 +35,9 @@ export const addUserWithPermissions = async (
       configurationService,
       req,
     );
-    if (user && user instanceof HttpException) throw user;
+    console.log('khoa', user);
+
+    if (user instanceof HttpException) throw user;
     else {
       const permission = await setPermissionUser(
         user,
@@ -45,6 +47,10 @@ export const addUserWithPermissions = async (
         queryRunner,
         req,
       );
+      if (permission instanceof HttpException) throw permission;
+      else {
+        return permission;
+      }
     }
   } catch (error) {
     await queryRunner.rollbackTransaction();
@@ -59,7 +65,9 @@ export const addUser = async (
   req: Request,
 ) => {
   let user = await userService.findUserByUsername(createUser.username);
+
   if (!user) {
+    console.log(1);
     const hash = await bcrypt.hash(
       createUser.password,
       parseInt(configurationService.get(Configuration.SALT)),
@@ -73,12 +81,15 @@ export const addUser = async (
     user = await userService.add(temp, queryRunner.manager);
     return user;
   } else {
-    return new HandleException(
+    console.log(2);
+    const a = new HandleException(
       DATABASE_EXIT_CODE.UNIQUE_FIELD_VALUE,
       req.method,
       req.url,
       sprintf(ErrorMasage.UNIQUE_USERNAME_ERROR, createUser.username),
     );
+    console.log(a);
+    return a;
   }
 };
 
@@ -103,7 +114,7 @@ export const setPermissionUser = async (
       arrayUserPermission.push(temp);
     }
 
-    const user_permission = userPermissionService.bulkAdd(
+    const user_permission = await userPermissionService.bulkAdd(
       arrayUserPermission,
       queryRunner.manager,
     );

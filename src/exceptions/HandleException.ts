@@ -1,9 +1,11 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
+
 import { Levels } from '../constants/enums/levels.enum';
 import { LogService } from '../modules/log/services/log.service';
 
 export class HandleException extends HttpException {
-  private logService = new LogService();
+  private _logger = new LogService();
+
   constructor(
     errorCode?: number,
     method?: string,
@@ -14,16 +16,16 @@ export class HandleException extends HttpException {
     super(
       {
         errorCode: errorCode ?? 0,
-        message: message ?? 'Internal Server Error',
+        message: message ?? `Internal Server Error.`,
       },
       status || HttpStatus.INTERNAL_SERVER_ERROR,
     );
 
-    this.logService.writeLog(
+    this._logger.writeLog(
       Levels.ERROR,
       method,
       path,
-      message ?? 'Internal Server Error',
+      message ?? `Internal Server Error.`,
     );
   }
 }
