@@ -8,7 +8,6 @@ export const writeFile = (data) => {
   if (fs.existsSync(path)) {
     fs.appendFileSync(path, data);
   } else {
-    fs.mkdirSync(LOG_PATH);
     fs.writeFileSync(path, data);
   }
 };

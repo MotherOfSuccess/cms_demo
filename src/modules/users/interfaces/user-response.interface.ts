@@ -4,5 +4,7 @@ export interface UserResponse {
   id: string;
   username: string;
   status: boolean;
-  permissions: PermissionResponse[] | null;
+  createAt: Date;
+  updateAt: Date;
+  permissions?: PermissionResponse[] | null;
 }

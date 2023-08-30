@@ -1,40 +1,110 @@
 import {
   Body,
   Controller,
-  Get,
+  Delete,
   HttpException,
+  Param,
   Post,
+  Put,
   Req,
 } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+
 import { UserService } from '../services/user.service';
-import { CreateUserDto } from '../dtos/create-user.dto';
-import { HandleException } from '../../../exceptions/HandleException';
-import { SERVER_EXIT_CODE } from '../../../constants/enums/errors-code.enum';
-import { addUserWithPermissions } from '../functions';
 import { PermissionService } from '../../../modules/permissions/services/permission/permission.service';
 import { UserPermissionService } from '../../../modules/permissions/services/user-permission/user-permission.service';
-import { DataSource } from 'typeorm';
 import { ConfigurationService } from '../../../modules/shared/services/configuration/configuration.service';
+import { LogService } from '../../log/services/log.service';
+
+import { CreateUserDto } from '../dtos/create-user.dto';
+import { UpdateUserDto } from '../dtos/update-user.dto';
+
+import { HandleException } from '../../../exceptions/HandleException';
+
+import {
+  addUserWithPermissions,
+  unlinkUserandPermission,
+  updateUserandPermission,
+} from '../functions';
+
+import { Levels } from '../../../constants/enums/levels.enum';
+import {
+  DATABASE_EXIT_CODE,
+  SERVER_EXIT_CODE,
+} from '../../../constants/enums/errors-code.enum';
+import { ErrorMasage } from '../constants/enums/error-message.enum';
+import { GetUserDto } from '../dtos/get-user.dto';
+import { Configuration } from '../../shared/constants/configuration.enum';
+
+import { generateUserResponse } from '../utils';
 
 @Controller('user')
 export class UserController {
   constructor(
-    private userService: UserService,
-    private permissionService: PermissionService,
-    private userPermissionService: UserPermissionService,
-    private dataSource: DataSource,
-    private configurationService: ConfigurationService,
+    private readonly userService: UserService,
+    private readonly permissionService: PermissionService,
+    private readonly userPermissionService: UserPermissionService,
+    private readonly dataSource: DataSource,
+    private readonly configurationService: ConfigurationService,
+    private readonly logService: LogService,
   ) {}
 
-  @Get('all')
-  findAll() {
-    return this.userService.findAll();
+  @Post('all')
+  async findAll(@Body() users: GetUserDto, @Req() req: Request) {
+    try {
+      this.logService.writeLog(
+        Levels.LOG,
+        req.method,
+        req.url,
+        JSON.stringify(users),
+      );
+
+      const { page, input } = users;
+      let { pages } = users;
+      const itemPerPage = parseInt(
+        this.configurationService.get(Configuration.ITEMS_PER_PAGE),
+      );
+
+      if (pages == 0) {
+        const count = await this.userService.count(input);
+        if (count > 0) pages = Math.ceil(count / itemPerPage);
+      }
+      const pagination = await this.userService.findAllWithPagination(
+        (page - 1) * itemPerPage,
+        itemPerPage,
+        input,
+      );
+      if (pagination && pagination.length > 0) {
+        return generateUserResponse(page, pages, pagination);
+      } else {
+        throw new HandleException(
+          DATABASE_EXIT_CODE.NO_CONTENT,
+          req.method,
+          req.url,
+          ErrorMasage.NO_CONTENT,
+        );
+      }
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HandleException(
+        SERVER_EXIT_CODE.INTERNAL_SERVER_ERROR,
+        req.method,
+        req.url,
+      );
+    }
   }
 
   @Post('add')
-  addUser(@Body() createUserDto: CreateUserDto, @Req() req: Request) {
+  async addUser(@Body() createUserDto: CreateUserDto, @Req() req: Request) {
     try {
-      return addUserWithPermissions(
+      this.logService.writeLog(
+        Levels.LOG,
+        req.method,
+        req.url,
+        JSON.stringify(createUserDto),
+      );
+
+      const add = await addUserWithPermissions(
         createUserDto,
         this.userService,
         req,
@@ -43,6 +113,8 @@ export class UserController {
         this.dataSource,
         this.configurationService,
       );
+      if (add instanceof HttpException) throw add;
+      return add;
     } catch (error) {
       if (error instanceof HttpException) throw error;
       else {
@@ -52,6 +124,70 @@ export class UserController {
           req.url,
         );
       }
+    }
+  }
+
+  @Put('update/:username')
+  async updateUser(
+    @Param('username') username: string,
+    @Req() req: Request,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    try {
+      this.logService.writeLog(
+        Levels.LOG,
+        req.method,
+        req.url,
+        JSON.stringify(updateUserDto),
+      );
+      const update = await updateUserandPermission(
+        username,
+        req,
+        updateUserDto,
+        this.dataSource,
+        this.userService,
+        this.permissionService,
+        this.userPermissionService,
+        this.configurationService,
+      );
+      if (update instanceof HttpException) throw update;
+      return update;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HandleException(
+        SERVER_EXIT_CODE.INTERNAL_SERVER_ERROR,
+        req.method,
+        req.url,
+      );
+    }
+  }
+
+  @Delete(':username')
+  async unlink(@Param('username') username: string, @Req() req: Request) {
+    try {
+      this.logService.writeLog(
+        Levels.LOG,
+        req.method,
+        req.url,
+        JSON.stringify({ username: username }),
+      );
+      const unlink = unlinkUserandPermission(
+        username,
+        this.userService,
+        this.userPermissionService,
+        this.permissionService,
+        this.dataSource,
+        req,
+      );
+      if (unlink instanceof HttpException) throw unlink;
+      return unlink;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HandleException(
+        SERVER_EXIT_CODE.INTERNAL_SERVER_ERROR,
+        req.method,
+        req.url,
+      );
     }
   }
 }

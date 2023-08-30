@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { LogService } from '../../../log/services/log.service';
 import { Levels } from '../../../../constants/enums/levels.enum';
 import { Methods } from '../../../../constants/enums/methods.enum';
+import { ErrorMessage } from '../../constants/error-message.enum';
 
 @Injectable()
 export class PermissionService {
@@ -14,18 +15,40 @@ export class PermissionService {
     private logService: LogService,
   ) {}
 
-  async findPermission(codes?: string[]): Promise<PermissionEntity[] | null> {
+  async findAllPermissions(): Promise<PermissionEntity[] | null> {
     try {
-      let permissions = this.permissionRepository
-        .createQueryBuilder('permission')
-        .where('permission.deleted = :deleted', { deleted: false });
-      if (codes && codes.length > 0) {
-        permissions = permissions.andWhere('permission.code in (:...codes)', {
-          codes: codes,
-        });
-      }
-
+      const permissions = this.permissionRepository
+        .createQueryBuilder('permissions')
+        .where('permissions.deleted = :deleted', { deleted: false });
       return permissions.getMany() || null;
+    } catch (error) {
+      this.logService.writeLog(
+        Levels.ERROR,
+        Methods.GET,
+        'PermissionService.findAllPermissions()',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async findPermission(codes: string[]): Promise<PermissionEntity[] | null> {
+    try {
+      if (codes && codes.length > 0) {
+        const permissions = this.permissionRepository
+          .createQueryBuilder('permission')
+          .where('permission.deleted = :deleted', { deleted: false })
+          .andWhere('permission.code in (:...codes)', { codes: codes });
+        return permissions.getMany() || null;
+      } else {
+        this.logService.writeLog(
+          Levels.LOG,
+          Methods.GET,
+          'PermissionService.findPermission()',
+          ErrorMessage.NO_CONTENT,
+        );
+        return null;
+      }
     } catch (error) {
       this.logService.writeLog(
         Levels.ERROR,
@@ -37,5 +60,21 @@ export class PermissionService {
     }
   }
 
-  // async add(createPermissionDto: CreatePermissionDto) {}
+  async findPermissionById(id: string): Promise<PermissionEntity | null> {
+    try {
+      const permission = this.permissionRepository
+        .createQueryBuilder('permission')
+        .where('permission.deleted = :deleted', { deleted: false })
+        .andWhere('permission.id = :id', { id: id });
+      return permission.getOne() || null;
+    } catch (error) {
+      this.logService.writeLog(
+        Levels.ERROR,
+        Methods.GET,
+        'PermissionService.findPermissionById()',
+        error,
+      );
+      return null;
+    }
+  }
 }

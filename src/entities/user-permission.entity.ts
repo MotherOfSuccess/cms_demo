@@ -4,7 +4,6 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Unique,
 } from 'typeorm';
 import { RootEntity } from './root.entity';
 import { UserEntity } from './user.entity';
@@ -25,13 +24,13 @@ export class UserPermissionEntity extends RootEntity {
   allowed: boolean;
 
   @ManyToOne(() => UserEntity, (user) => user.user_permissions)
-  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
+  @JoinColumn([{ name: 'user_id', referencedColumnName: 'id' }])
   user: UserEntity | null;
 
   @ManyToOne(
     () => PermissionEntity,
     (permission) => permission.user_permissions,
   )
-  @JoinColumn({ name: 'permission_id', referencedColumnName: 'id' })
+  @JoinColumn([{ name: 'permission_id', referencedColumnName: 'id' }])
   permission: PermissionEntity | null;
 }

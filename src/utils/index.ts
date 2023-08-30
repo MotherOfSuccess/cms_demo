@@ -1,4 +1,7 @@
 import { ValidationArguments } from 'class-validator';
+import { HttpResponsePaging } from '../interfaces/http-response-paging.interface';
+import { HttpResponse } from '../interfaces/http-response.interface';
+import { UNKNOW_EXIT_CODE } from '../constants/enums/errors-code.enum';
 
 export const generateValidationMessage = (
   arg: ValidationArguments,
@@ -12,7 +15,7 @@ export const returnObject = <T>(
   errorCode?: number,
   message?: string | null,
   errors?: [{ [key: string]: string }] | null,
-) => {
+): HttpResponse<T> => {
   return {
     data: data,
     errorCode: !data ? 0 : errorCode ?? 0,
@@ -21,7 +24,29 @@ export const returnObject = <T>(
   };
 };
 
-export const sprintf = (str, arv) => {
-  if (!arv) return str;
-  return sprintf(str.replace('%s', arv.shift()), arv);
+export const returnObjectWithPagination = <T>(
+  page: number,
+  pages: number,
+  data: T | T[] | null,
+  count?: number,
+  errorCode?: number,
+  message?: string | null,
+  errors?: [{ [key: string]: string }] | null,
+): HttpResponsePaging<T> => {
+  return {
+    data: {
+      page,
+      pages,
+      data,
+      count,
+    },
+    errorCode: data ? 0 : errorCode ?? UNKNOW_EXIT_CODE.UNKNOW_ERROR,
+    errors: errors ?? null,
+    message: data ? null : message,
+  };
+};
+
+export const sprintf = (str, ...argv) => {
+  if (!argv.length) return str;
+  return sprintf(str.replace('%s', argv.shift()), ...argv);
 };

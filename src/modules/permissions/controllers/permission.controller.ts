@@ -21,7 +21,7 @@ export class PermissionController {
   async getPermissions(@Req() req: Request) {
     try {
       this.logService.writeLog(Levels.LOG, req.method, req.url, null);
-      const permissions = await this.permissionService.findPermission();
+      const permissions = await this.permissionService.findAllPermissions();
       if (permissions && permissions.length > 0) {
         return generatePermissionResponse(permissions);
       } else {
