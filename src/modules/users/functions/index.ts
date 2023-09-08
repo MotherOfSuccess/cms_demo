@@ -1,6 +1,7 @@
 import { DataSource, QueryRunner } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { HttpException } from '@nestjs/common';
+import { Request } from 'express';
 
 import { PermissionService } from '../../../modules/permissions/services/permission/permission.service';
 import { ConfigurationService } from '../../../modules/shared/services/configuration/configuration.service';
@@ -72,7 +73,7 @@ export const addUserWithPermissions = async (
 
     if (error instanceof HttpException) throw error;
     else {
-      return new HandleException(
+      throw new HandleException(
         SERVER_EXIT_CODE.INTERNAL_SERVER_ERROR,
         req.method,
         req.url,
@@ -182,22 +183,25 @@ export const updateUserandPermission = async (
       );
       if (user_setted instanceof HttpException) throw user_setted;
       else {
-        const permission_setted = await updatePermission(
-          user_setted,
-          updateUser,
-          userPermissionService,
-          permissionService,
-          req,
-          queryRunner,
-        );
-        if (permission_setted instanceof HttpException) throw permission_setted;
-        else {
-          return generateSuccessResponse(
+        if (updateUser.permission) {
+          const permission_setted = await updatePermission(
             user_setted,
-            queryRunner,
-            permission_setted,
+            updateUser,
+            userPermissionService,
             permissionService,
+            req,
+            queryRunner,
           );
+          if (permission_setted instanceof HttpException)
+            throw permission_setted;
+          else {
+            return generateSuccessResponse(
+              user_setted,
+              queryRunner,
+              permission_setted,
+              permissionService,
+            );
+          }
         }
       }
     } else {
@@ -234,7 +238,7 @@ export const setUser = async (
     if (password) {
       const hash = await bcrypt.hash(
         userDto.password,
-        configurationService.get(Configuration.SALT),
+        parseInt(configurationService.get(Configuration.SALT)),
       );
       user.password = hash;
     }

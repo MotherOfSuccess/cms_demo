@@ -9,6 +9,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import { Request } from 'express';
 
 import { UserService } from '../services/user.service';
 import { PermissionService } from '../../../modules/permissions/services/permission/permission.service';

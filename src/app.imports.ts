@@ -8,6 +8,9 @@ import { ConfigurationService } from './modules/shared/services/configuration/co
 import { UserModule } from './modules/users/user.module';
 import { LogModule } from './modules/log/log.module';
 import { PermissionModule } from './modules/permissions/permission.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
+import { jwtFactory } from './factories/jwt.factory';
 
 export const module = [
   SharedModule,
@@ -22,9 +25,16 @@ export const module = [
     useFactory: postgresqlFactory,
   }),
 
+  JwtModule.registerAsync({
+    imports: [SharedModule],
+    inject: [ConfigurationService],
+    useFactory: jwtFactory,
+  }),
+
+  LogModule,
   UserModule,
   PermissionModule,
-  LogModule,
+  AuthModule,
 ];
 
 export const controllers = [AppController];

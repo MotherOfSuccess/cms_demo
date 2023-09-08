@@ -1,14 +1,19 @@
 import { Controller, Get, HttpException, Req } from '@nestjs/common';
+import { Request } from 'express';
+
 import { PermissionService } from '../services/permission/permission.service';
 import { LogService } from '../../../modules/log/services/log.service';
+
 import { Levels } from '../../../constants/enums/levels.enum';
-import { generatePermissionResponse } from '../utils';
-import { HandleException } from '../../../exceptions/HandleException';
 import {
   DATABASE_EXIT_CODE,
   SERVER_EXIT_CODE,
 } from '../../../constants/enums/errors-code.enum';
 import { ErrorMessage } from '../constants/error-message.enum';
+
+import { generatePermissionResponse } from '../utils';
+
+import { HandleException } from '../../../exceptions/HandleException';
 
 @Controller('permission')
 export class PermissionController {
@@ -23,7 +28,8 @@ export class PermissionController {
       this.logService.writeLog(Levels.LOG, req.method, req.url, null);
       const permissions = await this.permissionService.findAllPermissions();
       if (permissions && permissions.length > 0) {
-        return generatePermissionResponse(permissions);
+        const response = await generatePermissionResponse(permissions);
+        return response;
       } else {
         throw new HandleException(
           DATABASE_EXIT_CODE.UNKNOW_VALUE,
