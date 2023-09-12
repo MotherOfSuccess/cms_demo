@@ -1,4 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
+
 import { generateValidationMessage } from '../../../utils';
 
 export class RenewTokenDto {

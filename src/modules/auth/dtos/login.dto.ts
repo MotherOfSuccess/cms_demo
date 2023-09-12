@@ -1,6 +1,8 @@
 import { IsNotEmpty } from 'class-validator';
-import { generateValidationMessage } from '../../../utils';
 import { Transform } from 'class-transformer';
+
+import { generateValidationMessage } from '../../../utils';
+
 import { LengthValidator } from '../../../validators/length.validator';
 
 export class LoginDto {

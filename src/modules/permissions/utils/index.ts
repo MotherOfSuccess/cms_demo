@@ -1,5 +1,7 @@
 import { PermissionEntity } from '../../../entities/permission.entity';
+
 import { PermissionResponse } from '../interfaces/permission-response.interface';
+
 import { returnObject } from '../../../utils';
 
 export const generatePermissionResponse = (permissions: PermissionEntity[]) => {

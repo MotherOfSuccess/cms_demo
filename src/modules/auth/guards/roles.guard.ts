@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+
 import { Roles } from '../../../constants/enums/roles.enum';
 import { validateRoles } from '../validations';
 import { JwtPayload } from '../interfaces/payload/jwt-payload.interface';

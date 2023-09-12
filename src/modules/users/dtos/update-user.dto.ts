@@ -7,7 +7,9 @@ import {
 } from 'class-validator';
 
 import { LengthValidator } from '../../../validators/length.validator';
+
 import { generateValidationMessage } from '../../../utils';
+
 import { PermissionDto } from './permission.dto';
 
 export class UpdateUserDto {

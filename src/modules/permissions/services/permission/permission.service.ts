@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PermissionEntity } from '../../../../entities/permission.entity';
 import { Repository } from 'typeorm';
+
+import { PermissionEntity } from '../../../../entities/permission.entity';
+
 import { LogService } from '../../../log/services/log.service';
+
 import { Levels } from '../../../../constants/enums/levels.enum';
 import { Methods } from '../../../../constants/enums/methods.enum';
 import { ErrorMessage } from '../../constants/error-message.enum';

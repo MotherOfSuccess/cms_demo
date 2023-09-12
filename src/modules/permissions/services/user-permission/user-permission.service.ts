@@ -7,7 +7,6 @@ import { Methods } from '../../../../constants/enums/methods.enum';
 import { UserPermissionEntity } from '../../../../entities/user-permission.entity';
 import { LogService } from '../../../log/services/log.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '../../../../entities/user.entity';
 
 @Injectable()
 export class UserPermissionService {

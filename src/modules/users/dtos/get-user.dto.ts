@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsOptional } from 'class-validator';
-import { generateValidationMessage } from '../../../utils';
 import { MinValidator } from '../../../validators/min-value.validator';
+
+import { generateValidationMessage } from '../../../utils';
 
 export class GetUserDto {
   @IsNotEmpty({
