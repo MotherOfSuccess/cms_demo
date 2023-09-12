@@ -15,12 +15,14 @@ import { ExpiredTokenException } from '../exceptions/ExpiredTokenException';
 import { sprintf } from '../../../utils';
 import { ErrorMasage } from '../constants/error-message.enum';
 import { JwtPayload } from '../interfaces/payload/jwt-payload.interface';
+import { UserService } from '../../users/services/user.service';
 
 @Injectable()
 export class VerifyMiddlewares implements NestMiddleware {
   constructor(
     private jwtService: JwtService,
     private authService: AuthService,
+    private userService: UserService,
     private configurationService: ConfigurationService,
   ) {}
   async use(req: Request, res: Response, next: NextFunction) {
@@ -29,15 +31,13 @@ export class VerifyMiddlewares implements NestMiddleware {
       const accessToken = authorization.split(' ')[1];
       if (accessToken || accessToken.length > 0) {
         try {
-          const user = await this.jwtService.verify(accessToken, {
+          const decoded = await this.jwtService.verify(accessToken, {
             secret: this.configurationService.get(
               Configuration.ACCESS_SECRET_KEY,
             ),
           });
 
-          req.user = user as JwtPayload;
-
-          const auth = await this.authService.findSession(user.userID);
+          const auth = await this.authService.findSession(decoded.userID);
           if (!auth) {
             throw new InvalidTokenException(
               accessToken,
@@ -46,6 +46,25 @@ export class VerifyMiddlewares implements NestMiddleware {
               req.url,
             );
           }
+          const user = await this.userService.findUserById(decoded.userID);
+
+          if (user) {
+            const permissions = user.user_permissions.map(
+              (element) => element.permission.code,
+            );
+            const payload = {
+              userID: user.id,
+              username: user.username,
+              permissions,
+            };
+            req.user = payload as JwtPayload;
+          } else
+            throw new InvalidTokenException(
+              accessToken,
+              AUTHENTICATION_EXIT_CODE.INVALID_TOKEN,
+              req.method,
+              req.url,
+            );
           next();
         } catch (error) {
           if (error instanceof HttpException) throw error;

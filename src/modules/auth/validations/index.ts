@@ -17,6 +17,8 @@ import { sprintf } from '../../../utils';
 import { JwtService } from '@nestjs/jwt';
 import { InvalidTokenException } from '../exceptions/InvalidTokenException';
 import { ExpiredTokenException } from '../exceptions/ExpiredTokenException';
+import { JwtPayload } from '../interfaces/payload/jwt-payload.interface';
+import { Roles } from '../../../constants/enums/roles.enum';
 
 export const validateUser = async (
   username: string,
@@ -77,4 +79,15 @@ export const validateToken = async (
       req.url,
     );
   }
+};
+
+export const validateRoles = async (user: JwtPayload, roles: Roles[]) => {
+  let isAccess = false;
+  user.permissions.forEach((e) => {
+    console.log(roles.includes(e));
+    if (roles.includes(e)) {
+      isAccess = true;
+    }
+  });
+  return isAccess;
 };

@@ -2,8 +2,9 @@ import { ValidationArguments } from 'class-validator';
 import { HttpResponsePaging } from '../interfaces/http-response-paging.interface';
 import { HttpResponse } from '../interfaces/http-response.interface';
 import { UNKNOW_EXIT_CODE } from '../constants/enums/errors-code.enum';
-import { MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { MiddlewareConsumer, RequestMethod, SetMetadata } from '@nestjs/common';
 import { VerifyMiddlewares } from '../modules/auth/middlewares/auth.middleware';
+import { Roles } from '../constants/enums/roles.enum';
 
 export const generateValidationMessage = (
   arg: ValidationArguments,
@@ -56,6 +57,8 @@ export const sprintf = (str, ...argv) => {
 export const applyMiddlewares = (consumer: MiddlewareConsumer) => {
   consumer
     .apply(VerifyMiddlewares)
-    // .exclude({ path: 'auth/login', method: RequestMethod.POST })
+    .exclude({ path: 'auth/login', method: RequestMethod.POST })
     .forRoutes({ path: '*', method: RequestMethod.ALL });
 };
+
+export const Permissions = (...roles: Roles[]) => SetMetadata('roles', roles);

@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { Request } from 'express';
@@ -38,8 +39,13 @@ import { GetUserDto } from '../dtos/get-user.dto';
 import { Configuration } from '../../shared/constants/configuration.enum';
 
 import { generateUserResponse } from '../utils';
+import { RoleGuard } from '../../auth/guards/roles.guard';
+import { Permissions } from '../../../utils';
+import { Roles } from '../../../constants/enums/roles.enum';
 
 @Controller('user')
+@UseGuards(RoleGuard)
+@Permissions(Roles.QLND)
 export class UserController {
   constructor(
     private readonly userService: UserService,

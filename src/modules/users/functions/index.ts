@@ -233,7 +233,7 @@ export const setUser = async (
   configurationService: ConfigurationService,
 ) => {
   const { password, status } = userDto;
-  let user = await userService.findUsernameById(id);
+  let user = await userService.findUserById(id);
   if (user) {
     if (password) {
       const hash = await bcrypt.hash(

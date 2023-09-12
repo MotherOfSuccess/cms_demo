@@ -1,4 +1,4 @@
-import { Controller, Get, HttpException, Req } from '@nestjs/common';
+import { Controller, Get, HttpException, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 
 import { PermissionService } from '../services/permission/permission.service';
@@ -14,6 +14,9 @@ import { ErrorMessage } from '../constants/error-message.enum';
 import { generatePermissionResponse } from '../utils';
 
 import { HandleException } from '../../../exceptions/HandleException';
+import { Roles } from '../../../constants/enums/roles.enum';
+import { Permissions } from '../../../utils';
+import { RoleGuard } from '../../auth/guards/roles.guard';
 
 @Controller('permission')
 export class PermissionController {
@@ -23,9 +26,12 @@ export class PermissionController {
   ) {}
 
   @Get()
+  @UseGuards(RoleGuard)
+  @Permissions(Roles.QLTT, Roles.QLTC)
   async getPermissions(@Req() req: Request) {
     try {
       this.logService.writeLog(Levels.LOG, req.method, req.url, null);
+
       const permissions = await this.permissionService.findAllPermissions();
       if (permissions && permissions.length > 0) {
         const response = await generatePermissionResponse(permissions);
