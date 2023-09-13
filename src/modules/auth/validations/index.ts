@@ -10,6 +10,7 @@ import { UserService } from '../../users/services/user.service';
 import {
   AUTHENTICATION_EXIT_CODE,
   DATABASE_EXIT_CODE,
+  UNKNOW_EXIT_CODE,
 } from '../../../constants/enums/errors-code.enum';
 import { ErrorMasage } from '../constants/error-message.enum';
 
@@ -81,13 +82,25 @@ export const validateToken = async (
   }
 };
 
-export const validateRoles = async (user: JwtPayload, roles: Roles[]) => {
+export const validateRoles = async (
+  user: JwtPayload,
+  roles: Roles[],
+  req: Request,
+) => {
   let isAccess = false;
-  user.permissions.forEach((e) => {
-    console.log(roles.includes(e));
-    if (roles.includes(e)) {
-      isAccess = true;
-    }
-  });
-  return isAccess;
+  try {
+    user.permissions.forEach((e) => {
+      console.log(roles.includes(e));
+      if (roles.includes(e)) {
+        isAccess = true;
+      }
+    });
+    return isAccess;
+  } catch (error) {
+    return new HandleException(
+      UNKNOW_EXIT_CODE.UNKNOW_ERROR,
+      req.method,
+      req.url,
+    );
+  }
 };

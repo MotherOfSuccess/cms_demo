@@ -19,6 +19,7 @@ import { Permissions } from '../../../utils';
 import { RoleGuard } from '../../auth/guards/roles.guard';
 
 @Controller('permission')
+@UseGuards(RoleGuard)
 export class PermissionController {
   constructor(
     private permissionService: PermissionService,
@@ -26,7 +27,6 @@ export class PermissionController {
   ) {}
 
   @Get()
-  @UseGuards(RoleGuard)
   @Permissions(Roles.QLTT, Roles.QLTC)
   async getPermissions(@Req() req: Request) {
     try {

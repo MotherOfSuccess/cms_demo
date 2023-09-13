@@ -45,7 +45,6 @@ import { Roles } from '../../../constants/enums/roles.enum';
 
 @Controller('user')
 @UseGuards(RoleGuard)
-@Permissions(Roles.QLND)
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -57,6 +56,7 @@ export class UserController {
   ) {}
 
   @Post('all')
+  @Permissions(Roles.QLND)
   async findAll(@Body() users: GetUserDto, @Req() req: Request) {
     try {
       this.logService.writeLog(
@@ -102,6 +102,7 @@ export class UserController {
   }
 
   @Post('add')
+  @Permissions(Roles.QLND)
   async addUser(@Body() createUserDto: CreateUserDto, @Req() req: Request) {
     try {
       this.logService.writeLog(
@@ -135,6 +136,7 @@ export class UserController {
   }
 
   @Put('update/:username')
+  @Permissions(Roles.QLND)
   async updateUser(
     @Param('username') username: string,
     @Req() req: Request,
@@ -170,6 +172,7 @@ export class UserController {
   }
 
   @Delete(':username')
+  @Permissions(Roles.QLND)
   async unlink(@Param('username') username: string, @Req() req: Request) {
     try {
       this.logService.writeLog(
