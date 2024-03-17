@@ -51,7 +51,7 @@ export class UserService {
         query.andWhere(`users.username LIKE '%${input}%'`);
       }
       const users = query
-        .orderBy('users.updateAt', 'DESC')
+        .orderBy('users.createAt', 'DESC')
         .skip(offset)
         .take(limit)
         .getMany();

@@ -5,6 +5,7 @@ import { UNKNOW_EXIT_CODE } from '../constants/enums/errors-code.enum';
 import { MiddlewareConsumer, RequestMethod, SetMetadata } from '@nestjs/common';
 import { VerifyMiddlewares } from '../modules/auth/middlewares/auth.middleware';
 import { Roles } from '../constants/enums/roles.enum';
+import slugify from 'slugify';
 
 export const generateValidationMessage = (
   arg: ValidationArguments,
@@ -52,6 +53,21 @@ export const returnObjectWithPagination = <T>(
 export const sprintf = (str, ...argv) => {
   if (!argv.length) return str;
   return sprintf(str.replace('%s', argv.shift()), ...argv);
+};
+
+export const isActiveDate = (startAt: Date, endAt: Date) => {
+  const now = Date.now();
+  return startAt.getTime() < now && endAt.getTime() >= now;
+};
+
+export const _slugify = (slug: string) => {
+  slug = slugify(slug, {
+    remove: /[*+~.()'"!:@]/g,
+    trim: true,
+    lower: true,
+    locale: 'vi',
+  });
+  return slug;
 };
 
 export const applyMiddlewares = (consumer: MiddlewareConsumer) => {

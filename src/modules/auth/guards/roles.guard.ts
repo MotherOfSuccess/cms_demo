@@ -15,9 +15,7 @@ export class RoleGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const temp = this.reflector.get<Roles[]>('roles', context.getHandler());
-
     const req = context.switchToHttp().getRequest();
-
     console.log(temp);
     if (req.user) {
       const payload = req.user as JwtPayload;

@@ -15,6 +15,8 @@ import { UserModule } from './modules/users/user.module';
 import { LogModule } from './modules/log/log.module';
 import { PermissionModule } from './modules/permissions/permission.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { BannerModule } from './modules/banners/banner.module';
+import { FileModule } from './modules/files/file.module';
 
 export const module = [
   SharedModule,
@@ -39,6 +41,8 @@ export const module = [
   UserModule,
   PermissionModule,
   AuthModule,
+  BannerModule,
+  FileModule,
 ];
 
 export const controllers = [AppController];
